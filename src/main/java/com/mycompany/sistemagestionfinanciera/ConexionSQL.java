@@ -16,7 +16,7 @@ public class ConexionSQL {
         this.url = "jdbc:mysql://localhost:3306/";
         this.db = "FinancieraPersonalDB";
         this.user = "root";
-        this.password = "Tu_contraseña";
+        this.password = "tu contraseña";
         this.driver = "com.mysql.cj.jdbc.Driver";
     }
 

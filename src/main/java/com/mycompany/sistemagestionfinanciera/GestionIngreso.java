@@ -1,5 +1,7 @@
 package com.mycompany.sistemagestionfinanciera;
 
+import javax.swing.JOptionPane;
+
 public class GestionIngreso extends javax.swing.JFrame {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(GestionIngreso.class.getName());
@@ -8,9 +10,50 @@ public class GestionIngreso extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
         this.getContentPane().setBackground(new java.awt.Color(30, 41, 59));
+        cargarTablaIngresos();
+    }
+    // Consulta los ingresos y coloca los resultados en la tabla.
+    public void cargarTablaIngresos() {
+        tblIngresos.setModel(Ingreso.consultar(this));
     }
 
+    // Comprueba que el monto ingresados sean válidos.
+    private boolean validarFormulario() {
+        // El monto es obligatorio y debe poder convertirse a número.
+        String montoTexto = txtMonto.getText().trim();
+        if (montoTexto.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Ingrese el monto asignado.", "Dato requerido",
+                    JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
 
+        try {
+            double monto = Double.parseDouble(montoTexto);
+            // Solo se aceptan montos mayores que cero.
+            if (monto > 0) {
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "El monto debe ser un número mayor que cero.", "Monto inválido",
+                        JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this,
+                    "El monto debe ser un número válido.", "Error de formato",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+    }
+    private void limpiarCampos() {
+        txtCodigo.setText("");
+        txtDescripcion.setText("");
+        txtMonto.setText("");
+        txtFecha.setText("");
+        cmbTipo.setSelectedIndex(0);
+        tblIngresos.clearSelection();
+    }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -225,27 +268,114 @@ public class GestionIngreso extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
-        
+        limpiarCampos();
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
-    
+        Principal principal = new Principal();
+        principal.setVisible(true);
+        this.dispose();
+
     }//GEN-LAST:event_btnVolverActionPerformed
 
     private void tblIngresosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblIngresosMouseClicked
-
+        // Copia la fila seleccionada al formulario para consultarla o modificarla.
+        int fila = tblIngresos.getSelectedRow();
+        if (fila >= 0) {
+            txtCodigo.setText(tblIngresos.getValueAt(fila, 0).toString());
+            txtDescripcion.setText(tblIngresos.getValueAt(fila, 1).toString());
+            txtMonto.setText(tblIngresos.getValueAt(fila, 2).toString());
+            txtFecha.setText(tblIngresos.getValueAt(fila, 3).toString());
+            cmbTipo.setSelectedItem(tblIngresos.getValueAt(fila, 4).toString());
+        }
     }//GEN-LAST:event_tblIngresosMouseClicked
 
     private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
-   
+   // Detiene el registro si los datos no pasan la validación.
+        if (!validarFormulario()) {
+            return;
+        }
+
+        // Obtiene los valores del formulario y crea el nuevo presupuesto.
+        String descripcion = txtDescripcion.getText().trim();
+        double monto = Double.parseDouble(txtMonto.getText().trim());
+        String fecha = txtFecha.getText().trim();
+        Tipo tipo = Tipo.valueOf(cmbTipo.getSelectedItem().toString());
+
+        Ingreso nuevoIngreso = new Ingreso(descripcion, monto, fecha, tipo);
+        String resultado = nuevoIngreso.agregar();
+
+        // Informa el resultado, actualiza la tabla y limpia el formulario.
+        JOptionPane.showMessageDialog(this, resultado);
+        cargarTablaIngresos();
+        limpiarCampos();
     }//GEN-LAST:event_btnAgregarActionPerformed
 
     private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
-   
+    // El código se obtiene al seleccionar una fila de la tabla.
+        if (txtCodigo.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Seleccione un ingreso de la tabla para modificar.");
+            return;
+        }
+        if (!validarFormulario()) {
+            return;
+        }
+
+        // Construye el presupuesto con su código para actualizar el registro existente.
+        try {
+            int codigo = Integer.parseInt(txtCodigo.getText().trim());
+            String descripcion = txtDescripcion.getText().trim();
+            double monto = Double.parseDouble(txtMonto.getText().trim());
+            String fecha = txtFecha.getText().trim();
+            Tipo tipo = Tipo.valueOf(cmbTipo.getSelectedItem().toString());
+
+            Ingreso ingresoEditado = new Ingreso(codigo, descripcion,
+                    monto, fecha, tipo);
+            String resultado = ingresoEditado.editar();
+
+            // Muestra el resultado y vuelve a cargar la tabla desde la base de datos.
+            JOptionPane.showMessageDialog(this, resultado);
+            cargarTablaIngresos();
+            limpiarCampos();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Seleccione un ingreso válido de la tabla.", "Código inválido",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnEditarActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
 
+        // Se requiere seleccionar primero el presupuesto que se eliminará.
+        if (txtCodigo.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Seleccione un ingreso de la tabla para eliminar.");
+            return;
+        }
+
+        // Solicita confirmación antes de borrar el registro.
+        int confirmacion = JOptionPane.showConfirmDialog(this,
+                "¿Desea eliminar este ingreso?", "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION);
+        if (confirmacion != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        // Elimina el presupuesto seleccionado y actualiza la tabla.
+        try {
+            int codigo = Integer.parseInt(txtCodigo.getText().trim());
+            Ingreso ingresoAEliminar = new Ingreso(codigo);
+            String resultado = ingresoAEliminar.eliminar();
+
+            JOptionPane.showMessageDialog(this, resultado);
+            cargarTablaIngresos();
+            limpiarCampos();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Seleccione un ingreso válido de la tabla.", "Código inválido",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnEliminarActionPerformed
 
 

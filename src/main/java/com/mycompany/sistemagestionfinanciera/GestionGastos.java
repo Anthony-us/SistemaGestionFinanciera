@@ -1,16 +1,6 @@
 package com.mycompany.sistemagestionfinanciera;
 
-import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
-
-import java.sql.Connection;
-import java.sql.Statement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet; 
-import java.sql.SQLException;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
 
 public class GestionGastos extends javax.swing.JFrame {
 
@@ -24,7 +14,7 @@ public class GestionGastos extends javax.swing.JFrame {
     }
 
     public void cargarTablaGastos() {
-        jTable1.setModel(Gasto.consultar(this));
+        TablaGastos.setModel(Gasto.consultar(this));
     }
 
     private void limpiarCampos() {
@@ -36,8 +26,6 @@ public class GestionGastos extends javax.swing.JFrame {
         if (cbxCategoria.getItemCount() > 0) {
             cbxCategoria.setSelectedIndex(0);
         }
-
-        txtCodigo.setEnabled(true);
     }
 
     @SuppressWarnings("unchecked")
@@ -55,13 +43,13 @@ public class GestionGastos extends javax.swing.JFrame {
         txtCodigo = new javax.swing.JTextField();
         btnRegistrar = new javax.swing.JButton();
         btnEliminar = new javax.swing.JButton();
-        btnModificar = new javax.swing.JButton();
-        btnConsultar = new javax.swing.JButton();
+        btnEditar = new javax.swing.JButton();
+        btnVolver = new javax.swing.JButton();
         cbxCategoria = new javax.swing.JComboBox<>();
         txtDescripcion = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        TablaGastos = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -93,6 +81,7 @@ public class GestionGastos extends javax.swing.JFrame {
 
         txtMonto.addActionListener(this::txtMontoActionPerformed);
 
+        txtCodigo.setEnabled(false);
         txtCodigo.addActionListener(this::txtCodigoActionPerformed);
 
         btnRegistrar.setBackground(new java.awt.Color(16, 185, 129));
@@ -105,15 +94,15 @@ public class GestionGastos extends javax.swing.JFrame {
         btnEliminar.setText("Eliminar");
         btnEliminar.addActionListener(this::btnEliminarActionPerformed);
 
-        btnModificar.setBackground(new java.awt.Color(16, 185, 129));
-        btnModificar.setFont(new java.awt.Font("Verdana", 3, 12)); // NOI18N
-        btnModificar.setText("Modificar");
-        btnModificar.addActionListener(this::btnModificarActionPerformed);
+        btnEditar.setBackground(new java.awt.Color(16, 185, 129));
+        btnEditar.setFont(new java.awt.Font("Verdana", 3, 12)); // NOI18N
+        btnEditar.setText("Editar");
+        btnEditar.addActionListener(this::btnEditarActionPerformed);
 
-        btnConsultar.setBackground(new java.awt.Color(16, 185, 129));
-        btnConsultar.setFont(new java.awt.Font("Verdana", 3, 12)); // NOI18N
-        btnConsultar.setText("Consultar");
-        btnConsultar.addActionListener(this::btnConsultarActionPerformed);
+        btnVolver.setBackground(new java.awt.Color(16, 185, 129));
+        btnVolver.setFont(new java.awt.Font("Verdana", 3, 12)); // NOI18N
+        btnVolver.setText("Volver");
+        btnVolver.addActionListener(this::btnVolverActionPerformed);
 
         cbxCategoria.setFont(new java.awt.Font("Verdana", 2, 12)); // NOI18N
         cbxCategoria.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Alimentación", "Transporte", "Vivienda", "Salud", "Entrenamiento", "Educación" }));
@@ -127,13 +116,13 @@ public class GestionGastos extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(btnRegistrar, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(15, 15, 15)
-                        .addComponent(btnConsultar, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(15, 15, 15)
-                        .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(15, 15, 15)
+                        .addGap(12, 12, 12)
+                        .addComponent(btnEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(18, 18, 18)
+                        .addComponent(btnVolver, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(24, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -146,7 +135,7 @@ public class GestionGastos extends javax.swing.JFrame {
                                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE))
                                 .addGap(18, 18, 18)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(txtMonto, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
+                                    .addComponent(txtMonto)
                                     .addComponent(txtCodigo))
                                 .addGap(73, 73, 73)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -180,16 +169,16 @@ public class GestionGastos extends javax.swing.JFrame {
                 .addGap(27, 27, 27)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnRegistrar, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnConsultar, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnVolver, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(22, 22, 22))
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(16, 185, 129)), "Gastos Registrados ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Verdana", 3, 14))); // NOI18N
 
-        jTable1.setFont(new java.awt.Font("Verdana", 2, 12)); // NOI18N
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        TablaGastos.setFont(new java.awt.Font("Verdana", 2, 12)); // NOI18N
+        TablaGastos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
                 {null, null, null, null, null},
@@ -204,23 +193,30 @@ public class GestionGastos extends javax.swing.JFrame {
             Class[] types = new Class [] {
                 java.lang.Integer.class, java.lang.Double.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
+            boolean[] canEdit = new boolean [] {
+                false, true, true, true, true
+            };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
-        });
-        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jTable1MouseClicked(evt);
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
-        if (jTable1.getColumnModel().getColumnCount() > 0) {
-            jTable1.getColumnModel().getColumn(0).setPreferredWidth(70);
-            jTable1.getColumnModel().getColumn(1).setPreferredWidth(70);
-            jTable1.getColumnModel().getColumn(2).setPreferredWidth(70);
-            jTable1.getColumnModel().getColumn(3).setPreferredWidth(70);
-            jTable1.getColumnModel().getColumn(4).setPreferredWidth(170);
+        TablaGastos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                TablaGastosMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(TablaGastos);
+        if (TablaGastos.getColumnModel().getColumnCount() > 0) {
+            TablaGastos.getColumnModel().getColumn(0).setPreferredWidth(70);
+            TablaGastos.getColumnModel().getColumn(1).setPreferredWidth(70);
+            TablaGastos.getColumnModel().getColumn(2).setPreferredWidth(70);
+            TablaGastos.getColumnModel().getColumn(3).setPreferredWidth(70);
+            TablaGastos.getColumnModel().getColumn(4).setPreferredWidth(170);
         }
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -283,7 +279,7 @@ public class GestionGastos extends javax.swing.JFrame {
             cargarTablaGastos();
 
         } catch (NumberFormatException e) {
-            javax.swing.JOptionPane.showMessageDialog(null, "El monto debe ser un "
+            JOptionPane.showMessageDialog(null, "El monto debe ser un "
                     + "número válido.", "Error de formato",
                     JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
@@ -331,59 +327,17 @@ public class GestionGastos extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtMontoActionPerformed
 
-    private void btnConsultarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConsultarActionPerformed
+    private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
 
-        try {
-            // 1. Validar que se haya escrito un código
-            if (txtCodigo.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Por favor ingrese "
-                        + "el código del gasto a consultar.");
-                return;
-            }
+        this.dispose();
+    }//GEN-LAST:event_btnVolverActionPerformed
 
-            int codigoBuscado = Integer.parseInt(txtCodigo.getText().trim());
-
-            ConexionSQL conexionsQL = new ConexionSQL();
-            String sql = "SELECT * FROM gastos WHERE codigo = ?";
-
-            try (java.sql.PreparedStatement ps = 
-                    conexionsQL.conectarSQL().prepareStatement(sql)) {
-                ps.setInt(1, codigoBuscado);
-                try (java.sql.ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        txtDescripcion.setText(rs.getString("descripcion"));
-                        txtMonto.setText(String.valueOf(rs.getDouble("monto")));
-
-                        txtFecha.setText(rs.getString("fecha"));
-
-                        String categoriaBD = rs.getString("categoria");
-                        cbxCategoria.setSelectedItem(Categoria.valueOf(categoriaBD));
-
-                        JOptionPane.showMessageDialog(this, "Gasto "
-                                + "encontrado con éxito.");
-                    } else {
-                        JOptionPane.showMessageDialog(this, "No se "
-                                + "encontró ningún gasto con el código: " + codigoBuscado);
-                        limpiarCampos();
-                    }
-                }
-            } finally {
-                conexionsQL.desconectarSQL();
-            }
-
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "El código debe ser un número válido.");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al consultar: " + e.getMessage());
-        }
-
-    }//GEN-LAST:event_btnConsultarActionPerformed
-
-    private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
+    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
 
         try {
             if (txtCodigo.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Debe seleccionar un gasto para modificar.");
+                JOptionPane.showMessageDialog(null, "Por favor, seleccione un "
+                        + "gasto de la tabla para modificar.");
                 return;
             }
 
@@ -391,44 +345,44 @@ public class GestionGastos extends javax.swing.JFrame {
             String descripcion = txtDescripcion.getText().trim();
             double monto = Double.parseDouble(txtMonto.getText().trim());
             String fecha = txtFecha.getText().trim();
-            Categoria categoria = (Categoria) cbxCategoria.getSelectedItem();
 
-            Gasto gastoEditado = new Gasto(codigo, descripcion, monto, fecha, categoria);
+            String nombreCategoria = cbxCategoria.getSelectedItem().toString();
+            Categoria categoria = Categoria.valueOf(nombreCategoria);
 
-            String resultado = gastoEditado.editar();
+            Gasto gastoAModificar = new Gasto(codigo, descripcion, monto, fecha, categoria);
+            String resultado = gastoAModificar.editar();
 
             JOptionPane.showMessageDialog(null, resultado);
             limpiarCampos();
             cargarTablaGastos();
-
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Verifique que los campos numéricos sean correctos.");
+            JOptionPane.showMessageDialog(null, "El monto debe ser un número "
+                    + "válido.", "Error de formato", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error al modificar: " + e.getMessage());
         }
 
-    }//GEN-LAST:event_btnModificarActionPerformed
+    }//GEN-LAST:event_btnEditarActionPerformed
 
-    private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
+    private void TablaGastosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TablaGastosMouseClicked
 
-        int fila = jTable1.getSelectedRow();
+        int fila = TablaGastos.getSelectedRow();
         if (fila >= 0) {
-            txtCodigo.setText(jTable1.getValueAt(fila, 0).toString());
-            txtDescripcion.setText(jTable1.getValueAt(fila, 1).toString());
-            txtMonto.setText(jTable1.getValueAt(fila, 2).toString());
-            txtFecha.setText(jTable1.getValueAt(fila, 3).toString());
-            cbxCategoria.setSelectedItem(jTable1.getValueAt(fila, 4).toString());
-
-            txtCodigo.setEnabled(false);
+            txtCodigo.setText(TablaGastos.getValueAt(fila, 0).toString());
+            txtDescripcion.setText(TablaGastos.getValueAt(fila, 1).toString());
+            txtMonto.setText(TablaGastos.getValueAt(fila, 2).toString());
+            txtFecha.setText(TablaGastos.getValueAt(fila, 3).toString());
+            cbxCategoria.setSelectedItem(TablaGastos.getValueAt(fila, 4).toString());
         }
-    }//GEN-LAST:event_jTable1MouseClicked
+    }//GEN-LAST:event_TablaGastosMouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnConsultar;
+    private javax.swing.JTable TablaGastos;
+    private javax.swing.JButton btnEditar;
     private javax.swing.JButton btnEliminar;
-    private javax.swing.JButton btnModificar;
     private javax.swing.JButton btnRegistrar;
+    private javax.swing.JButton btnVolver;
     private javax.swing.JComboBox<String> cbxCategoria;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -438,7 +392,6 @@ public class GestionGastos extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTextField txtCodigo;
     private javax.swing.JTextField txtDescripcion;
     private javax.swing.JTextField txtFecha;

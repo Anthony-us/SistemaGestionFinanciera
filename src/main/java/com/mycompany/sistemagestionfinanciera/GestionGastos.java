@@ -278,16 +278,16 @@ public class GestionGastos extends javax.swing.JFrame {
 
             String resultado = nuevoGasto.agregar();
 
-            javax.swing.JOptionPane.showMessageDialog(null, resultado);
+            JOptionPane.showMessageDialog(null, resultado);
             limpiarCampos();
             cargarTablaGastos();
 
         } catch (NumberFormatException e) {
             javax.swing.JOptionPane.showMessageDialog(null, "El monto debe ser un "
                     + "número válido.", "Error de formato",
-                    javax.swing.JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
         }
 
     }//GEN-LAST:event_btnRegistrarActionPerformed
@@ -296,7 +296,7 @@ public class GestionGastos extends javax.swing.JFrame {
 
         try {
             if (txtCodigo.getText().trim().isEmpty()) {
-                javax.swing.JOptionPane.showMessageDialog(null, "Ingrese o seleccione "
+                JOptionPane.showMessageDialog(null, "Ingrese o seleccione "
                         + "el código del gasto a eliminar.");
                 return;
             }
@@ -305,20 +305,20 @@ public class GestionGastos extends javax.swing.JFrame {
 
             int confirmacion = javax.swing.JOptionPane.showConfirmDialog(null,
                     "¿Está seguro de eliminar este gasto?", "Confirmar",
-                    javax.swing.JOptionPane.YES_NO_OPTION);
+                    JOptionPane.YES_NO_OPTION);
 
             if (confirmacion == javax.swing.JOptionPane.YES_OPTION) {
                 Gasto gastoAEliminar = new Gasto(codigo);
 
                 String resultado = gastoAEliminar.eliminar();
 
-                javax.swing.JOptionPane.showMessageDialog(null, resultado);
+                JOptionPane.showMessageDialog(null, resultado);
                 limpiarCampos();
                 cargarTablaGastos();
             }
 
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(null, "Error al eliminar: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error al eliminar: " + e.getMessage());
         }
 
     }//GEN-LAST:event_btnEliminarActionPerformed
@@ -336,7 +336,7 @@ public class GestionGastos extends javax.swing.JFrame {
         try {
             // 1. Validar que se haya escrito un código
             if (txtCodigo.getText().trim().isEmpty()) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Por favor ingrese "
+                JOptionPane.showMessageDialog(this, "Por favor ingrese "
                         + "el código del gasto a consultar.");
                 return;
             }
@@ -359,10 +359,10 @@ public class GestionGastos extends javax.swing.JFrame {
                         String categoriaBD = rs.getString("categoria");
                         cbxCategoria.setSelectedItem(Categoria.valueOf(categoriaBD));
 
-                        javax.swing.JOptionPane.showMessageDialog(this, "Gasto "
+                        JOptionPane.showMessageDialog(this, "Gasto "
                                 + "encontrado con éxito.");
                     } else {
-                        javax.swing.JOptionPane.showMessageDialog(this, "No se "
+                        JOptionPane.showMessageDialog(this, "No se "
                                 + "encontró ningún gasto con el código: " + codigoBuscado);
                         limpiarCampos();
                     }
@@ -372,9 +372,9 @@ public class GestionGastos extends javax.swing.JFrame {
             }
 
         } catch (NumberFormatException e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "El código debe ser un número válido.");
+            JOptionPane.showMessageDialog(this, "El código debe ser un número válido.");
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Error al consultar: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error al consultar: " + e.getMessage());
         }
 
     }//GEN-LAST:event_btnConsultarActionPerformed
@@ -383,7 +383,7 @@ public class GestionGastos extends javax.swing.JFrame {
 
         try {
             if (txtCodigo.getText().trim().isEmpty()) {
-                javax.swing.JOptionPane.showMessageDialog(null, "Debe seleccionar un gasto para modificar.");
+                JOptionPane.showMessageDialog(null, "Debe seleccionar un gasto para modificar.");
                 return;
             }
 
@@ -397,14 +397,14 @@ public class GestionGastos extends javax.swing.JFrame {
 
             String resultado = gastoEditado.editar();
 
-            javax.swing.JOptionPane.showMessageDialog(null, resultado);
+            JOptionPane.showMessageDialog(null, resultado);
             limpiarCampos();
             cargarTablaGastos();
 
         } catch (NumberFormatException e) {
-            javax.swing.JOptionPane.showMessageDialog(null, "Verifique que los campos numéricos sean correctos.");
+            JOptionPane.showMessageDialog(null, "Verifique que los campos numéricos sean correctos.");
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(null, "Error al modificar: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error al modificar: " + e.getMessage());
         }
 
     }//GEN-LAST:event_btnModificarActionPerformed

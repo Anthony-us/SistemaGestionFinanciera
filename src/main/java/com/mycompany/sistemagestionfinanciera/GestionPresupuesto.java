@@ -1,13 +1,70 @@
 package com.mycompany.sistemagestionfinanciera;
 
+import javax.swing.JOptionPane;
+
 public class GestionPresupuesto extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(GestionPresupuesto.class.getName());
 
+    // Prepara la ventana y muestra los presupuestos guardados.
     public GestionPresupuesto() {
         initComponents();
         setLocationRelativeTo(null);
         this.getContentPane().setBackground(new java.awt.Color(30, 41, 59));
+        cargarTablaPresupuestos();
+    }
+
+    // Consulta los presupuestos y coloca los resultados en la tabla.
+    public void cargarTablaPresupuestos() {
+        tblPresupuestos.setModel(Presupuestos.consultar(this));
+    }
+
+    // Comprueba que el nombre y el monto ingresados sean válidos.
+    private boolean validarFormulario() {
+        // El nombre es obligatorio.
+        if (txtNombre.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Ingrese el nombre del presupuesto.", "Dato requerido",
+                    JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        // El monto también es obligatorio y debe poder convertirse a número.
+        String montoTexto = txtMonto.getText().trim();
+        if (montoTexto.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Ingrese el monto asignado.", "Dato requerido",
+                    JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        try {
+            double monto = Double.parseDouble(montoTexto);
+            // Solo se aceptan montos mayores que cero.
+            if (monto > 0) {
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "El monto debe ser un número mayor que cero.", "Monto inválido",
+                        JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this,
+                    "El monto debe ser un número válido.", "Error de formato",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+    }
+
+    // Vacía el formulario y restablece las opciones.
+    private void limpiarCampos() {
+        txtCodigo.setText("");
+        txtNombre.setText("");
+        txtMonto.setText("");
+        cmbMes.setSelectedIndex(0);
+        cmbEstado.setSelectedIndex(0);
+        tblPresupuestos.clearSelection();
     }
 
 
@@ -233,26 +290,114 @@ public class GestionPresupuesto extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
-        
+        // Regresa al menú principal y cierra esta ventana.
+        Principal principal = new Principal();
+        principal.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnVolverActionPerformed
 
     private void tblPresupuestosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblPresupuestosMouseClicked
+        // Copia la fila seleccionada al formulario para consultarla o modificarla.
+        int fila = tblPresupuestos.getSelectedRow();
+        if (fila >= 0) {
+            txtCodigo.setText(tblPresupuestos.getValueAt(fila, 0).toString());
+            txtNombre.setText(tblPresupuestos.getValueAt(fila, 1).toString());
+            txtMonto.setText(tblPresupuestos.getValueAt(fila, 2).toString());
+            cmbMes.setSelectedItem(tblPresupuestos.getValueAt(fila, 3).toString());
+            cmbEstado.setSelectedItem(tblPresupuestos.getValueAt(fila, 4).toString());
+        }
     }//GEN-LAST:event_tblPresupuestosMouseClicked
 
     private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
-   
+        // Detiene el registro si los datos no pasan la validación.
+        if (!validarFormulario()) {
+            return;
+        }
+
+        // Obtiene los valores del formulario y crea el nuevo presupuesto.
+        String nombre = txtNombre.getText().trim();
+        double monto = Double.parseDouble(txtMonto.getText().trim());
+        String mes = cmbMes.getSelectedItem().toString();
+        Estado estado = Estado.valueOf(cmbEstado.getSelectedItem().toString());
+
+        Presupuestos nuevoPresupuesto = new Presupuestos(nombre, monto, mes, estado);
+        String resultado = nuevoPresupuesto.agregar();
+
+        // Informa el resultado, actualiza la tabla y limpia el formulario.
+        JOptionPane.showMessageDialog(this, resultado);
+        cargarTablaPresupuestos();
+        limpiarCampos();
     }//GEN-LAST:event_btnAgregarActionPerformed
 
     private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
-        
+        // El código se obtiene al seleccionar una fila de la tabla.
+        if (txtCodigo.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Seleccione un presupuesto de la tabla para modificar.");
+            return;
+        }
+        if (!validarFormulario()) {
+            return;
+        }
+
+        // Construye el presupuesto con su código para actualizar el registro existente.
+        try {
+            int codigo = Integer.parseInt(txtCodigo.getText().trim());
+            String nombre = txtNombre.getText().trim();
+            double monto = Double.parseDouble(txtMonto.getText().trim());
+            String mes = cmbMes.getSelectedItem().toString();
+            Estado estado = Estado.valueOf(cmbEstado.getSelectedItem().toString());
+
+            Presupuestos presupuestoEditado = new Presupuestos(codigo, nombre,
+                    monto, mes, estado);
+            String resultado = presupuestoEditado.editar();
+
+            // Muestra el resultado y vuelve a cargar la tabla desde la base de datos.
+            JOptionPane.showMessageDialog(this, resultado);
+            cargarTablaPresupuestos();
+            limpiarCampos();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Seleccione un presupuesto válido de la tabla.", "Código inválido",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnEditarActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-      
+        // Se requiere seleccionar primero el presupuesto que se eliminará.
+        if (txtCodigo.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Seleccione un presupuesto de la tabla para eliminar.");
+            return;
+        }
+
+        // Solicita confirmación antes de borrar el registro.
+        int confirmacion = JOptionPane.showConfirmDialog(this,
+                "¿Desea eliminar este presupuesto?", "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION);
+        if (confirmacion != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        // Elimina el presupuesto seleccionado y actualiza la tabla.
+        try {
+            int codigo = Integer.parseInt(txtCodigo.getText().trim());
+            Presupuestos presupuestoAEliminar = new Presupuestos(codigo);
+            String resultado = presupuestoAEliminar.eliminar();
+
+            JOptionPane.showMessageDialog(this, resultado);
+            cargarTablaPresupuestos();
+            limpiarCampos();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Seleccione un presupuesto válido de la tabla.", "Código inválido",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
-
+        // Limpia el formulario
+        limpiarCampos();
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
 
